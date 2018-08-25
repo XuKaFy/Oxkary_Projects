@@ -16,10 +16,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    typedef Selecter::Data Data;
-
 private slots:
-    void onSet(const Data &d);
+    void onSet(const Info &d);
     void fire();
 
 private:
@@ -32,6 +30,7 @@ private:
     Selecter *selecter;
 
     int id;
+    Info info;
 };
 
 #endif // MAINWINDOW_H

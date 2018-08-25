@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "header/object.h"
+
 namespace Ui {
 class Selecter;
 }
@@ -15,17 +17,8 @@ public:
     explicit Selecter(QWidget *parent = 0);
     ~Selecter();
 
-    struct Data {
-        int width;
-        int height;
-        int minCnt;
-        int maxCnt;
-        int playerCnt;
-        double minDst;
-    };
-
 signals:
-    void set(Data);
+    void set(Info);
 
 private slots:
     void onAccepted();
