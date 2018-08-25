@@ -1,11 +1,12 @@
 #include <bits/stdc++.h>
-#define minR 2
-#define maxR 30
-#define minBetweenPercent 0.5
-#define maxFlyFrames
-#define eps 1
-#define maxPowPerSec 0.1
+#define MinR 2
+#define MaxR 30
+#define MinBetweenDis 0.5
+#define MaxFlyFrames
+#define EPS 1
+#define MaxPowPerSec 0.1
 #define Range 0.5
+#define ShipR 5
 struct Ship {
 	double x,y;
 	bool isFailed;
@@ -31,7 +32,7 @@ struct Planet {
 class Info {
 	private:
 		int	minPlanets,maxPlanets,playerCounts,minDis,height,width;//�������������������������������������������������߶ȣ����� 
-//		double minR;
+//		double MinR;
 		std::vector <Ship> ships;//�ɴ� 
 //		std::vector <Planet> planets;//���� 
 		Bomb bomb;
@@ -39,7 +40,7 @@ class Info {
 		
         Info(){}
 		void init(int minPlanets,int maxPlanets,int playerCounts,int minDis,int height,int width) {
-//			this->minR=minR;
+//			this->MinR=MinR;
 			this->minPlanets=minPlanets;
 			this->maxPlanets=maxPlanets;
 			this->playerCounts=playerCounts;
@@ -159,9 +160,9 @@ class GravityShooter {
 						Planet now=shooter.getPlanet(j);
 						nowMaxR=std::min(nowMaxR,dis(now.x,now.y,x,y)-now.r);
 					}
-					if (nowMaxR*minBetweenPercent<minR) access=false;
+					if (nowMaxR*MinBetweenDis<MinR) access=false;
 				}while(!access);
-				double r=random(minR,std::min((double)maxR,nowMaxR)*minBetweenPercent);
+				double r=random(MinR,std::min((double)MaxR,nowMaxR)*MinBetweenDis);
 				shooter.addPlanet(x,y,r);
 			}
 		}
@@ -198,7 +199,7 @@ class GravityShooter {
 			for (int i=0;i<shipsCnt;i++) {
 				Ship now=shooter.getShip(i);
 				double s=dis(bomb.x,bomb.y,now.x,now.y);
-				if (std::fabs(s)<eps&&now.isFailed==false) {
+				if (std::fabs(s)<ShipR&&now.isFailed==false) {
 					shooter.failShip(i);
 					shooter.crashBomb();
 					puts("iiiiiiiiiiiiii");
@@ -214,7 +215,7 @@ class GravityShooter {
 			shooter.plusShootCnt(id);
             double Sin=std::sin(deg),Cos=std::cos(deg);
 			Ship now=shooter.getShip(id);
-			shooter.setBomb(now.x+(2*eps*Sin),now.y+(2*eps*Cos),maxPowPerSec*Sin*power,maxPowPerSec*Cos*power,id,0);
+			shooter.setBomb(now.x+(2*EPS*Sin),now.y+(2*EPS*Cos),MaxPowPerSec*Sin*power,MaxPowPerSec*Cos*power,id,0);
 			
 			
 			//debug
