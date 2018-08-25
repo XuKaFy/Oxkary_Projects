@@ -1,10 +1,11 @@
 #include <bits/stdc++.h>
 #define minR 2
 #define maxR 30
-#define minBetweenDis 0.5
+#define minBetweenPercent 0.5
 #define maxFlyFrames
 #define eps 1
 #define maxPowPerSec 0.1
+#define Range 0.5
 struct Ship {
 	double x,y;
 	bool isFailed;
@@ -18,7 +19,7 @@ struct Bomb {
 	int id;//�����ɴ�
 	bool isCrashed;//�Ƿ�����ײ 
 	int color;//��ɫ��6λ16������ɫ���룩 
-    Bomb(double x=0,double y=0,double vx=0,double vy=0,int id=-1,int color=0):x(x),y(y),vx(vx),vy(vy),isCrashed(false),color(color){}
+    Bomb(double x=0,double y=0,double vx=0,double vy=0,int id=-1,int color=0):x(x),y(y),vx(vx),vy(vy),id(id),isCrashed(false),color(color){}
 };
 struct Planet {
 	double x,y;//���� 
@@ -29,27 +30,29 @@ struct Planet {
 };
 class Info {
 	private:
-		int	minPlannets,maxPlannets,playerCounts,minDis,height,width;//�������������������������������������������������߶ȣ����� 
+		int	minPlanets,maxPlanets,playerCounts,minDis,height,width;//�������������������������������������������������߶ȣ����� 
 //		double minR;
 		std::vector <Ship> ships;//�ɴ� 
-//		std::vector <Plannet> plannets;//���� 
+//		std::vector <Planet> planets;//���� 
 		Bomb bomb;
     public:std::vector <Planet> planets;//����
 		
         Info(){}
-		void init(int minPlannets,int maxPlannets,int playerCounts,int minDis,int height,int width) {
+		void init(int minPlanets,int maxPlanets,int playerCounts,int minDis,int height,int width) {
 //			this->minR=minR;
-			this->minPlannets=minPlannets;
-			this->maxPlannets=maxPlannets;
+			this->minPlanets=minPlanets;
+			this->maxPlanets=maxPlanets;
 			this->playerCounts=playerCounts;
 			this->minDis=minDis;
 			this->height=height;
 			this->width=width;
+            ships.clear();
+            planets.clear();
 		}
 		int getWidth(){return width;}
 		int getHeight(){return height;}
 		int getShipsNum() {	return ships.size();}
-        int getPlannetsNum() {return planets.size();}
+        int getPlanetsNum() {return planets.size();}
 		void setBomb(double x,double y,double vx,double vy,int id,bool crashed) 
 		{
 			bomb.x=x;
@@ -62,12 +65,12 @@ class Info {
 		Bomb getBomb() {return bomb;}
 		void failShip(int i) 
 		{
-			if (i>=ships.size()) assert(0);
+            if (i>=(int)ships.size()) assert(0);
 			ships[i].isFailed=true;
 		}
 		void plusShootCnt(int id) 
 		{
-			if (id>=ships.size()) assert(0);
+            if (id>=(int)ships.size()) assert(0);
 			ships[id].shootCounts++;
 		}
 		void crashBomb() {bomb.isCrashed=true;}
@@ -77,16 +80,16 @@ class Info {
 			else return bomb.id;
 		}
 		bool flying() {return !bomb.isCrashed;} 
-        void addPlannet(double x,double y,double r) {planets.push_back(Planet (x,y,r)); }
-        Planet getPlannet(int i)
+        void addPlanet(double x,double y,double r) {planets.push_back(Planet (x,y,r)); }
+        Planet getPlanet(int i)
 		{
-            if (i>=planets.size()) assert(0);
+            if (i>=(int)planets.size()) assert(0);
             return planets[i];
 		}
 		Ship getShip(int i) 
 		{
-            if (i>=ships.size()) {
-                printf("Error ships[%u] but ask %d\n", ships.size(), i);
+            if (i>=(int)ships.size()) {
+                printf("Error ships[%u] but ask %d\n", (int)ships.size(), i);
                 assert(0);
             }
             return ships[i];
@@ -109,7 +112,7 @@ class Info {
 class GravityShooter {
 //	private:
 		
-//		int	minPlannets,maxPlannets,playerCounts,minDis,height,width;
+//		int	minPlanets,maxPlanets,playerCounts,minDis,height,width;
 	public:Info shooter;
 		inline double rand01() {//���ؽ���0~1֮�������������� 
 			return rand() / double(RAND_MAX);
@@ -120,10 +123,10 @@ class GravityShooter {
 		inline double dis(double x1,double y1,double x2,double y2) {
 			return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 		}
-		void init(int minPlannets,int maxPlannets,int playerCounts,int minDis,int height,int width,std::vector <int> colors) {
+		void init(int minPlanets,int maxPlanets,int playerCounts,int minDis,int height,int width,std::vector <int> colors) {
 			
 			srand(time(0));
-			shooter.init(minPlannets,maxPlannets,playerCounts,minDis,height,width);
+			shooter.init(minPlanets,maxPlanets,playerCounts,minDis,height,width);
 			for (int i=0;i<playerCounts;i++) { 
 				bool access=true;
 				double x,y;
@@ -138,8 +141,8 @@ class GravityShooter {
 				}while(!access);
 				shooter.addShip(x,y,colors[i]);
 			}
-			int plannetCnt=random(minPlannets,maxPlannets);
-			for (int i=0;i<plannetCnt;i++) {
+			int planetCnt=random(minPlanets,maxPlanets);
+			for (int i=0;i<planetCnt;i++) {
 //				std::cout<<"MAKE!"<<std::endl;
 				double x,y,nowMaxR;
 				bool access=true;
@@ -150,39 +153,39 @@ class GravityShooter {
 					nowMaxR=999999999.0;
                     for (int j=0;j<num;j++) {
 						Ship now=shooter.getShip(j);
-						nowMaxR=std::min(nowMaxR,dis(now.x,x,now.y,y));
+						nowMaxR=std::min(nowMaxR,dis(now.x,now.y,x,y));
 					}
 					for (int j=0;j<i;j++) {
 						Planet now=shooter.getPlanet(j);
-							nowMaxR=std::min(nowMaxR,dis(now.x,x,now.y,y)-now.r);
+						nowMaxR=std::min(nowMaxR,dis(now.x,now.y,x,y)-now.r);
 					}
-					if (nowMaxR*minBetweenDis<minR) access=false;
-					
+					if (nowMaxR*minBetweenPercent<minR) access=false;
 				}while(!access);
-				double r=random(minR,std::min((double)maxR,nowMaxR)*minBetweenDis);
-				shooter.addPlannet(x,y,r);
+				double r=random(minR,std::min((double)maxR,nowMaxR)*minBetweenPercent);
+				shooter.addPlanet(x,y,r);
 			}
 		}
 		int calculate()
 		{
+			int w=shooter.getWidth(),h=shooter.getHeight();
 			Bomb bomb=shooter.getBomb();
 			if (bomb.isCrashed||bomb.id==-1) return -2;//�쳣 
-			int plannetsCnt=shooter.getPlannetsNum();
+			int planetsCnt=shooter.getPlanetsNum();
 			double ax=0,ay=0;
-			std::cout<<"plannetsCnt:"<<plannetsCnt<<std::endl; 
-			for (int i=0;i<plannetsCnt;i++) {
-                Planet now=shooter.getPlannet(i);
+			std::cout<<"planetsCnt:"<<planetsCnt<<std::endl; 
+			for (int i=0;i<planetsCnt;i++) {
+                Planet now=shooter.getPlanet(i);
                 double s=dis(bomb.x,bomb.y,now.x,now.y);
                 ax+=(now.M/(s*s))*((now.x-bomb.x)/s);
                 ay+=(now.M/(s*s))*((now.y-bomb.y)/s);
 			}
-            if (bomb.x<-1000||bomb.y<-1000||bomb.x>shooter.getWidth()+1000||bomb.y>shooter.getHeight()+1000) {
+            if (bomb.x<-w*Range||bomb.y<-h*Range||bomb.x>shooter.getWidth()+w*Range||bomb.y>shooter.getHeight()+h*Range) {
 				shooter.crashBomb();
 				puts("-1");
 				return -1;
 			}
-			for (int i=0;i<plannetsCnt;i++) {
-                Planet now=shooter.getPlannet(i);
+			for (int i=0;i<planetsCnt;i++) {
+                Planet now=shooter.getPlanet(i);
 				double s=dis(bomb.x,bomb.y,now.x,now.y);
 //				std::printf("%lf %lf %lf %lf %lf\n",bomb.x,now.x,bomb.y,now.y,now.r);
 				if (std::fabs(s)<now.r) {
@@ -194,7 +197,7 @@ class GravityShooter {
 			int shipsCnt=shooter.getShipsNum();
 			for (int i=0;i<shipsCnt;i++) {
 				Ship now=shooter.getShip(i);
-				double s=dis(bomb.x,now.x,bomb.y,now.y);
+				double s=dis(bomb.x,bomb.y,now.x,now.y);
 				if (std::fabs(s)<eps&&now.isFailed==false) {
 					shooter.failShip(i);
 					shooter.crashBomb();
@@ -211,11 +214,12 @@ class GravityShooter {
 			shooter.plusShootCnt(id);
             double Sin=std::sin(deg),Cos=std::cos(deg);
 			Ship now=shooter.getShip(id);
-			shooter.setBomb(now.x,now.y,maxPowPerSec*Sin*power,maxPowPerSec*Cos*power,id,0);
+			shooter.setBomb(now.x+(2*eps*Sin),now.y+(2*eps*Cos),maxPowPerSec*Sin*power,maxPowPerSec*Cos*power,id,0);
 			
 			
 			//debug
 //			std::cout<<"hello:"<<shooter.getBomb().id<<std::endl;
+            return 0;
 		}
 		Bomb getBomb()//���� 
 		{
