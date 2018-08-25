@@ -37,10 +37,16 @@ void Widget::prepare()
     painter.begin(stage);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setFont(QFont("Consolas", 20));
+
+    painter.scale(0.5, 0.5);
+    painter.translate(stage_size.width()/2, stage_size.height()/2);
+
+    painter.setBrush(QColor("black"));
     for(auto i=planet.begin(); i!=planet.end(); ++i) {
         painter.drawEllipse(QPointF(i->x, i->y), i->r, i->r);
     }
     painter.setPen("red");
+    painter.setBrush(QColor("red"));
     for(auto i=ship.begin(); i!=ship.end(); ++i) {
         painter.drawEllipse(QPointF(i->x, i->y), 10, 10);
     }
@@ -72,6 +78,10 @@ void Widget::turn()
     QPainter painter;
     painter.begin(stage);
     painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
+
+    painter.scale(0.5, 0.5);
+    painter.translate(stage_size.width()/2, stage_size.height()/2);
+
     if(!last_point.isNull()) {
         painter.drawLine(last_point, current_point);
     }
