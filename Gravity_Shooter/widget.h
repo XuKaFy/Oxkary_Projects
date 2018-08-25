@@ -36,7 +36,7 @@ private:
     QVector<Ship> ship;
     QPixmap *stage;
     QTimer *timer;
-    QPointF last_point;
+    QPointF last_point, current_point;
     GravityShooter *core;
     QSize stage_size;
     int id, current_id;
