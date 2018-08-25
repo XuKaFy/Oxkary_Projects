@@ -17,6 +17,8 @@ Widget::~Widget()
 
 void Widget::start(int player_count, int min_planet, int max_planet, double min_distance, int height, int width)
 {
+    timer->stop();
+
     core->init(min_planet, max_planet, player_count, min_distance, height, width, std::vector<int>(player_count));
     id = player_count;
     current_id = id-1;
@@ -58,6 +60,8 @@ void Widget::fire(double deg, double power)
 
     last_point.setX(0);
     last_point.setY(0);
+    current_point.setX(0);
+    current_point.setY(0);
 
     //qDebug("id is %d %f %f", current_id, deg, power);
     core->shoot(current_id, power, deg);
@@ -74,7 +78,7 @@ void Widget::paintEvent(QPaintEvent *)
     painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
     painter.setBrush(QColor("green"));
 
-    painter.drawEllipse(current_point, 5, 5);
+    if(!current_point.isNull()) painter.drawEllipse(current_point, 5, 5);
 }
 
 void Widget::turn()
