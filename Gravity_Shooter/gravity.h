@@ -4,7 +4,7 @@
 #define minBetweenPercent 0.5
 #define maxFlyFrames
 #define eps 1
-#define maxPowPerSec 0.1
+#define maxPowPerSec 6
 #define Range 0.5
 struct Ship {
 	double x,y;

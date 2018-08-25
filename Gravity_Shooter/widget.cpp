@@ -68,12 +68,19 @@ void Widget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.drawPixmap(QRect(QPoint(), stage_size), *stage);
+
+    painter.scale(0.5, 0.5);
+    painter.translate(stage_size.width()/2, stage_size.height()/2);
+    painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
+    painter.setBrush(QColor("green"));
+
+    painter.drawEllipse(current_point, 5, 5);
 }
 
 void Widget::turn()
 {
     core->calculate();
-    QPointF current_point(core->getBomb().x, core->getBomb().y);
+    current_point = QPointF(core->getBomb().x, core->getBomb().y);
 
     QPainter painter;
     painter.begin(stage);
