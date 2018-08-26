@@ -71,7 +71,7 @@ struct Info {
         maxR = 30.0;
         minBetweenPercent = 0.5;
         eps = 1;
-        maxPowPerSec = 1;
+        maxPowPerSec = 2;
         range = 0.5;
         shipRadius = 10;
     }

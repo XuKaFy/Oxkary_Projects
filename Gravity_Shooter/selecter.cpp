@@ -25,5 +25,13 @@ void Selecter::onAccepted()
     info.maxPlanetCount = ui->maxCntSpinBox->value();
     info.playerCount = ui->playerSpinBox->value();
     info.minDistance = ui->minDstSpinBox->value();
+
+    info.minR = ui->minRadiusSpinBox->value();
+    info.maxR = ui->maxRadiusSpinBox->value();
+    info.minBetweenPercent = ui->minBetweenSpinBox->value();
+    info.eps = ui->epsSpinBox->value();
+    info.maxPowPerSec = ui->maxPowPerSecSpinBox->value();
+    info.range = ui->rangeSpinBox->value();
+    info.shipRadius = ui->shipRadiusSpinBox->value();
     set(info);
 }

@@ -13,6 +13,10 @@ Widget::~Widget()
 {
     planet.clear();
     ship.clear();
+
+    delete timer;
+    delete stage;
+    delete core;
 }
 
 void Widget::start(const Info &info)
@@ -24,6 +28,7 @@ void Widget::start(const Info &info)
     current_id = id-1;
     stage_size.setHeight(info.height);
     stage_size.setWidth(info.width);
+    delete stage;
     stage = new QPixmap(stage_size);
     stage->fill();
     repaint();
