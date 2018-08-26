@@ -32,7 +32,7 @@ public:
     QGroupBox *groupBox;
     QWidget *gridLayoutWidget;
     QGridLayout *gridLayout;
-    QSpinBox *planetSpinBox;
+    QSpinBox *playerSpinBox;
     QLabel *label;
     QLabel *label_2;
     QSpinBox *minCntSpinBox;
@@ -64,11 +64,11 @@ public:
         gridLayout = new QGridLayout(gridLayoutWidget);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        planetSpinBox = new QSpinBox(gridLayoutWidget);
-        planetSpinBox->setObjectName(QStringLiteral("planetSpinBox"));
-        planetSpinBox->setMinimum(2);
+        playerSpinBox = new QSpinBox(gridLayoutWidget);
+        playerSpinBox->setObjectName(QStringLiteral("playerSpinBox"));
+        playerSpinBox->setMinimum(2);
 
-        gridLayout->addWidget(planetSpinBox, 0, 1, 1, 1);
+        gridLayout->addWidget(playerSpinBox, 0, 1, 1, 1);
 
         label = new QLabel(gridLayoutWidget);
         label->setObjectName(QStringLiteral("label"));

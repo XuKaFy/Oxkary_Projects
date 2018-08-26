@@ -8,9 +8,9 @@
 #include <QTimer>
 #include <QPixmap>
 
-#include "gravity.h"
+#include "header/object.h"
 
-class GravityShooter;
+class GravityShooterCore;
 class Planet;
 class Ship;
 class Bomb;
@@ -23,7 +23,7 @@ public:
     explicit Widget(QWidget *parent = 0);
     ~Widget();
 
-    void start(int player_count, int min_planet, int max_planet, double min_distance, int height, int width);
+    void start(const Info &info);
     void fire(double deg, double power);
 
 protected:
@@ -37,7 +37,7 @@ private:
     QPixmap *stage;
     QTimer *timer;
     QPointF last_point, current_point;
-    GravityShooter *core;
+    GravityShooterCore *core;
     QSize stage_size;
     int id, current_id;
 

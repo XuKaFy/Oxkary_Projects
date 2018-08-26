@@ -34,11 +34,11 @@ static const qt_meta_stringdata_Selecter_t qt_meta_stringdata_Selecter = {
 QT_MOC_LITERAL(0, 0, 8), // "Selecter"
 QT_MOC_LITERAL(1, 9, 3), // "set"
 QT_MOC_LITERAL(2, 13, 0), // ""
-QT_MOC_LITERAL(3, 14, 4), // "Data"
+QT_MOC_LITERAL(3, 14, 4), // "Info"
 QT_MOC_LITERAL(4, 19, 10) // "onAccepted"
 
     },
-    "Selecter\0set\0\0Data\0onAccepted"
+    "Selecter\0set\0\0Info\0onAccepted"
 };
 #undef QT_MOC_LITERAL
 
@@ -76,14 +76,14 @@ void Selecter::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         Selecter *_t = static_cast<Selecter *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->set((*reinterpret_cast< Data(*)>(_a[1]))); break;
+        case 0: _t->set((*reinterpret_cast< Info(*)>(_a[1]))); break;
         case 1: _t->onAccepted(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            typedef void (Selecter::*_t)(Data );
+            typedef void (Selecter::*_t)(Info );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&Selecter::set)) {
                 *result = 0;
                 return;
@@ -129,7 +129,7 @@ int Selecter::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void Selecter::set(Data _t1)
+void Selecter::set(Info _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

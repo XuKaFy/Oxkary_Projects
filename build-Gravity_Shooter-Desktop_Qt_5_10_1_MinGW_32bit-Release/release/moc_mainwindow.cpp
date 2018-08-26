@@ -34,12 +34,12 @@ static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
 QT_MOC_LITERAL(1, 11, 5), // "onSet"
 QT_MOC_LITERAL(2, 17, 0), // ""
-QT_MOC_LITERAL(3, 18, 4), // "Data"
+QT_MOC_LITERAL(3, 18, 4), // "Info"
 QT_MOC_LITERAL(4, 23, 1), // "d"
 QT_MOC_LITERAL(5, 25, 4) // "fire"
 
     },
-    "MainWindow\0onSet\0\0Data\0d\0fire"
+    "MainWindow\0onSet\0\0Info\0d\0fire"
 };
 #undef QT_MOC_LITERAL
 
@@ -73,7 +73,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         MainWindow *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->onSet((*reinterpret_cast< const Data(*)>(_a[1]))); break;
+        case 0: _t->onSet((*reinterpret_cast< const Info(*)>(_a[1]))); break;
         case 1: _t->fire(); break;
         default: ;
         }

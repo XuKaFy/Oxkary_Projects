@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setFont(QFont("Consolas", 9));
 
     view = new Widget(this);
-    view->start(2, 5, 15, 10, 600, 600);
+    view->start(info = Info());
 
     power_spinbox = new QDoubleSpinBox(this);
     power_spinbox->setGeometry(40, 500, 200, 20);
@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(fire_button, SIGNAL(clicked()), this, SLOT(fire()));
 
     selecter = new Selecter();
-    connect(selecter, SIGNAL(set(Data)), this, SLOT(onSet(Data)));
+    connect(selecter, SIGNAL(set(Info)), this, SLOT(onSet(Info)));
 
     set_button = new QPushButton(QStringLiteral("S"), this);
     set_button->setGeometry(350, 500, 30, 30);
@@ -36,14 +36,9 @@ MainWindow::~MainWindow()
     delete selecter;
 }
 
-void MainWindow::onSet(const Data &d)
+void MainWindow::onSet(const Info &d)
 {
-    view->start(d.playerCnt,
-                d.minCnt,
-                d.maxCnt,
-                d.minDst,
-                d.height,
-                d.width);
+    view->start(d);
 }
 
 void MainWindow::fire()

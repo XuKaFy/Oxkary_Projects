@@ -6,7 +6,7 @@ Widget::Widget(QWidget *parent)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(turn()));
 
-    core = new GravityShooter();
+    core = new GravityShooterCore();
 }
 
 Widget::~Widget()
@@ -15,25 +15,26 @@ Widget::~Widget()
     ship.clear();
 }
 
-void Widget::start(int player_count, int min_planet, int max_planet, double min_distance, int height, int width)
+void Widget::start(const Info &info)
 {
     timer->stop();
 
-    core->init(min_planet, max_planet, player_count, min_distance, height, width, std::vector<int>(player_count));
-    id = player_count;
+    core->init(info);
+    id = info.playerCount;
     current_id = id-1;
-    stage_size.setHeight(height);
-    stage_size.setWidth(width);
+    stage_size.setHeight(info.height);
+    stage_size.setWidth(info.width);
     stage = new QPixmap(stage_size);
     stage->fill();
+    repaint();
     resize(stage_size);
     prepare();
 }
 
 void Widget::prepare()
 {
-    planet = QVector<Planet>::fromStdVector(core->shooter.getPlanets());
-    ship = QVector<Ship>::fromStdVector(core->shooter.getShips());
+    planet = QVector<Planet>::fromStdVector(core->getPlanets());
+    ship = QVector<Ship>::fromStdVector(core->getShips());
 
     QPainter painter;
     painter.begin(stage);
@@ -45,7 +46,7 @@ void Widget::prepare()
 
     painter.setBrush(QColor("black"));
     for(auto i=planet.begin(); i!=planet.end(); ++i) {
-        painter.drawEllipse(QPointF(i->x, i->y), i->r, i->r);
+        painter.drawEllipse(QPointF(i->x, i->y), i->radius, i->radius);
     }
     painter.setPen("red");
     painter.setBrush(QColor("red"));
