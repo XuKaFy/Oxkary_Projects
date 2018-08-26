@@ -30,7 +30,7 @@ void Selecter::onAccepted()
     info.maxR = ui->maxRadiusSpinBox->value();
     info.minBetweenPercent = ui->minBetweenSpinBox->value();
     info.eps = ui->epsSpinBox->value();
-    info.speed = ui->maxPowPerSecSpinBox->value();
+    info.maxPowPerSec = ui->maxPowPerSecSpinBox->value();
     info.range = ui->rangeSpinBox->value();
     info.shipRadius = ui->shipRadiusSpinBox->value();
     set(info);
