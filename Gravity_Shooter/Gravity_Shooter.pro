@@ -32,7 +32,6 @@ SOURCES += \
 HEADERS += \
     mainwindow.h \
     widget.h \
-    gravity.h \
     selecter.h \
     header/object.h
 
