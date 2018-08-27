@@ -24,6 +24,7 @@ void Selecter::onAccepted()
     info.minPlanetCount = std::size_t(ui->minCntSpinBox->value());
     info.maxPlanetCount = std::size_t(ui->maxCntSpinBox->value());
     info.playerCount = std::size_t(ui->playerSpinBox->value());
+
     info.minDistance = ui->minDstSpinBox->value();
 
     info.minR = ui->minRadiusSpinBox->value();
@@ -35,6 +36,7 @@ void Selecter::onAccepted()
     info.shipRadius = ui->shipRadiusSpinBox->value();
     info.speedAtBeginning = ui->speedAtBeginningSpinBox->value();
     info.bombDensity = ui->bombDensitySpinBox->value();
+
 
     set(info);
 }

@@ -8,10 +8,12 @@
 #include <algorithm>
 #include <iostream>
 
+
 typedef double real;
 
 #define SQR(n) ((n)*(n))
 #define inf 999999999
+
 struct Object
 {
     Object(real x = 0, real y = 0, real radius = 1, bool movable = true)
@@ -37,6 +39,7 @@ struct Planet : public Object
 struct Bomb : public Planet
 {
     explicit Bomb(real x = 0, real y = 0, real radius = 1, bool movable = true, real density = 1, real vx = 0, real vy = 0, int id = 0)
+
         : Planet(x, y, radius, movable, density, vx, vy), isCrashed(false), id(id) { }
 
     void getNext(real ax, real ay) {
@@ -79,6 +82,7 @@ struct Info {
         maxR = 30.0;
         minBetweenPercent = 0.5;
         eps = 1;
+
         speed = 1;
         range = 0.5;
         shipRadius = 10;
@@ -89,6 +93,7 @@ struct Info {
     size_t minPlanetCount;
     size_t maxPlanetCount;
     size_t playerCount;
+
     real minDistance;
     int width;
     int height;
@@ -97,6 +102,7 @@ struct Info {
     real maxR;
     real minBetweenPercent;
     real eps;
+
     real speed;
     real range;
     real shipRadius;
@@ -106,6 +112,7 @@ struct Info {
 
 #define Vector std::vector
 typedef std::size_t size_t;
+
 
 class GravityShooterCore
 {
@@ -120,6 +127,7 @@ public:
 
     static int randomInt(int Min,int Max) {
         return (rand() % (Max-Min+1))+ Min;
+
     }
 
     static double distance(double x1, double y1, double x2, double y2) {
@@ -210,6 +218,7 @@ public:
 //          std::printf("%lf %lf %lf %lf %lf\n",bomb.x,now.x,bomb.y,now.y,now.r);
             if (std::fabs(s) < now.radius) {
                 bomb.crash();
+
                 //puts("-1");
                 return -1;
             }

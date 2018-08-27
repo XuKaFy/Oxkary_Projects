@@ -58,6 +58,7 @@
        </property>
       </widget>
      </item>
+
      <item row="5" column="1">
       <widget class="QSpinBox" name="heightSpinBox">
        <property name="maximum">
@@ -82,6 +83,7 @@
       <widget class="QLabel" name="label_11">
        <property name="text">
         <string>Start Speed</string>
+
        </property>
       </widget>
      </item>
@@ -126,10 +128,10 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Min Distance</string>
+        <string>Min Planet Count</string>
        </property>
       </widget>
      </item>
@@ -262,6 +264,7 @@
        </property>
        <property name="value">
         <number>5</number>
+
        </property>
       </widget>
      </item>

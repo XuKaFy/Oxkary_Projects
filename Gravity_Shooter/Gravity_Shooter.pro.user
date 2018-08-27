@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
+
 <!-- Written by QtCreator 4.7.0, 2018-08-27T11:44:01. -->
+
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -291,12 +293,14 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Gravity_Shooter</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
+
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:F:/GravityShooter/Oxkary_Projects/Gravity_Shooter/Gravity_Shooter.pro</value>
     <value type="bool" key="QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath">true</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">Gravity_Shooter.pro</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory.default">F:/GravityShooter/Oxkary_Projects/build-Gravity_Shooter-Desktop_Qt_5_10_1_MinGW_32bit-Release</value>
+
     <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>

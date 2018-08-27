@@ -7,8 +7,8 @@ Widget::Widget(QWidget *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(turn()));
 
     core = new GravityShooterCore();
-
     stage = nullptr;
+
 }
 
 Widget::~Widget()
@@ -25,6 +25,7 @@ Widget::~Widget()
 void Widget::start(const Info &info)
 {
     //qDebug("starting");
+
     timer->stop();
 
     core->init(info);
@@ -36,6 +37,7 @@ void Widget::start(const Info &info)
 
     current_id = id-1;
     //qDebug("current id %u", current_id);
+
     stage_size.setHeight(info.height);
     stage_size.setWidth(info.width);
     delete stage;
@@ -85,6 +87,7 @@ void Widget::fire(double deg, double power)
         current_point[i].setY(0);
     }
 
+
     //qDebug("id is %d %f %f", current_id, deg, power);
     core->shoot(current_id, power, deg);
     //qDebug("shoot_ed");
@@ -95,7 +98,6 @@ void Widget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.drawPixmap(QRect(QPoint(), stage_size), *stage);
-
     painter.scale(0.5, 0.5);
     painter.translate(stage_size.width()/2, stage_size.height()/2);
     painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
@@ -104,6 +106,7 @@ void Widget::paintEvent(QPaintEvent *)
     for(int i=0; i<int(id); ++i) {
         if(!current_point[i].isNull()) painter.drawEllipse(current_point[i], 5, 5);
     }
+
 }
 
 void Widget::turn_single(int id)
@@ -117,7 +120,6 @@ void Widget::turn_single(int id)
 
     painter.scale(0.5, 0.5);
     painter.translate(stage_size.width()/2, stage_size.height()/2);
-
     if(!last_point[(id)].isNull()) {
         painter.drawLine(last_point[id], current_point[id]);
     }
