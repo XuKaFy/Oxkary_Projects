@@ -10,7 +10,7 @@
 typedef double real;
 
 #define SQR(n) ((n)*(n))
-
+#define inf 999999999
 struct Object
 {
     Object(real x = 0, real y = 0, real radius = 1, bool movable = true)
@@ -46,8 +46,14 @@ struct Bomb : public Planet
     }
 
     bool isCrashed;
-    int time;
+
+    int flyFrames;
     int id;
+    void crash() {
+        isCrashed=true;
+        flyFrames=0;
+    }
+
 };
 
 struct Ship : public Object
@@ -71,9 +77,10 @@ struct Info {
         maxR = 30.0;
         minBetweenPercent = 0.5;
         eps = 1;
-        maxPowPerSec = 2;
+        speed = 1;
         range = 0.5;
         shipRadius = 10;
+        speedAtBeginning=2;
     }
 
     int minPlanetCount;
@@ -87,6 +94,11 @@ struct Info {
     real maxR;
     real minBetweenPercent;
     real eps;
+
+    real speed;
+    real range;
+    real shipRadius;
+    real speedAtBeginning;
     real maxPowPerSec;
     real range;
     real shipRadius;
@@ -149,7 +161,8 @@ public:
             do {
                 access = true;
                 x = rand01() * info.width, y = rand01() * info.height;
-                nowMaxR = 999999999.0;
+                nowMaxR = (double)inf;
+
                 for (int j=0; j<num; ++j) {
                     nowMaxR = std::min(nowMaxR, distance(ship[j].x, ship[j].y, x, y));
                 }
@@ -176,7 +189,8 @@ public:
             ay += (now.getMass()/(SQR(s))) * ((now.y-bomb.y)/s);
         }
         if (bomb.x < -info.width*info.range || bomb.y<-info.height*info.range || bomb.x>info.width+info.width*info.range || bomb.y>info.height+info.height*info.range) {
-            bomb.isCrashed = true;
+            bomb.crash();
+
             //puts("-1");
             return -1;
         }
@@ -185,7 +199,8 @@ public:
             double s = distance(bomb.x, bomb.y, now.x, now.y);
 //          std::printf("%lf %lf %lf %lf %lf\n",bomb.x,now.x,bomb.y,now.y,now.r);
             if (std::fabs(s) < now.radius) {
-                bomb.isCrashed = true;
+                bomb.crash();
+
                 //puts("-1");
                 return -1;
             }
@@ -194,13 +209,14 @@ public:
         for (int i=0; i<shipsCnt; ++i) {
             Ship &now = ship[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
-            if (std::fabs(s)<info.eps && !now.isFailed) {
+            if (std::fabs(s)<now.radius && !now.isFailed) {
                 now.isFailed = true;
-                bomb.isCrashed = true;
+                bomb.crash();
                 return i;
             }
         }
-        bomb.getNext(ax, ay);
+        bomb.getNext(ax*info.speed, ay*info.speed);
+
         return 0;
     }
 
@@ -208,8 +224,10 @@ public:
     {
         double Sin = std::sin(deg), Cos = std::cos(deg);
         Ship now = ship[id];
+        if (now.isFailed)
+            return -1;
+        bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, 0, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning);
 
-        bomb = Bomb(now.x+(2*info.eps*Sin), now.y+(2*info.eps*Cos), info.shipRadius, true, 0, info.maxPowPerSec*Sin*power, info.maxPowPerSec*Cos*power);
         return 0;
     }
 
