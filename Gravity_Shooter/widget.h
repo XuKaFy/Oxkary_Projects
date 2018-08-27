@@ -27,17 +27,17 @@ protected:
     void paintEvent(QPaintEvent *);
 
 private:
+    void set(QPainter &painter);
+
     void prepare();
     void turn_single(int id);
 
-    QVector<Planet> planet;
-    QVector<Ship> ship;
     QPixmap *stage;
     QTimer *timer;
     QVector<QPointF> last_point, current_point;
     GravityShooterCore *core;
     QSize stage_size;
-    size_t id, current_id;
+    size_t current_id;
 
 private slots:
     void turn();

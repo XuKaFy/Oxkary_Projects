@@ -8,14 +8,10 @@ Widget::Widget(QWidget *parent)
 
     core = new GravityShooterCore();
     stage = nullptr;
-
 }
 
 Widget::~Widget()
 {
-    planet.clear();
-    ship.clear();
-
     timer->stop();
     delete timer;
     delete stage;
@@ -29,22 +25,23 @@ void Widget::start(const Info &info)
     timer->stop();
 
     core->init(info);
-    id = info.playerCount;
 
-    //qDebug("resize %d", int(id));
-    last_point.resize(int(id));
-    current_point.resize(int(id));
-
-    current_id = id-1;
+    current_id = info.playerCount-1;
     //qDebug("current id %u", current_id);
+
+    last_point.clear();
+    current_point.clear();
+    last_point.resize(int(core->getInfo().playerCount));
+    current_point.resize(int(core->getInfo().playerCount));
 
     stage_size.setHeight(info.height);
     stage_size.setWidth(info.width);
+    resize(stage_size);
+
     delete stage;
     stage = new QPixmap(stage_size);
     stage->fill();
     repaint();
-    resize(stage_size);
 
     //qDebug("end start");
 
@@ -53,39 +50,35 @@ void Widget::start(const Info &info)
 
 void Widget::prepare()
 {
-    planet = QVector<Planet>::fromStdVector(core->getPlanets());
-    ship = QVector<Ship>::fromStdVector(core->getShips());
-
     QPainter painter;
     painter.begin(stage);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setFont(QFont("Consolas", 20));
 
-    painter.scale(0.5, 0.5);
-    painter.translate(stage_size.width()/2, stage_size.height()/2);
+    set(painter);
 
     painter.setBrush(QColor("black"));
-    for(auto i=planet.begin(); i!=planet.end(); ++i) {
+    for(auto i=core->getPlanets().begin(); i!=core->getPlanets().end(); ++i) {
         painter.drawEllipse(QPointF(i->x, i->y), i->radius, i->radius);
     }
     painter.setPen("red");
     painter.setBrush(QColor("red"));
-    for(auto i=ship.begin(); i!=ship.end(); ++i) {
+    for(auto i=core->getShips().begin(); i!=core->getShips().end(); ++i) {
         painter.drawEllipse(QPointF(i->x, i->y), 10, 10);
     }
 }
 
 void Widget::fire(double deg, double power)
 {
-    (++current_id) %= id;
+    do {
+        (++current_id) %= core->getInfo().playerCount;
+    } while(core->getShips()[current_id].isFailed);
 
     //qDebug("init");
-    for(int i=0; i<int(id); ++i) {
-        last_point[i].setX(0);
-        last_point[i].setY(0);
-        current_point[i].setX(0);
-        current_point[i].setY(0);
-    }
+    last_point.clear();
+    current_point.clear();
+    last_point.resize(int(core->getInfo().playerCount));
+    current_point.resize(int(core->getInfo().playerCount));
 
 
     //qDebug("id is %d %f %f", current_id, deg, power);
@@ -94,16 +87,23 @@ void Widget::fire(double deg, double power)
     timer->start(10);
 }
 
+void Widget::set(QPainter &painter)
+{
+    painter.scale(1/(1+2*core->getInfo().range), 1/(1+2*core->getInfo().range));
+    painter.translate(core->getInfo().width*core->getInfo().range, core->getInfo().height*core->getInfo().range);
+}
+
 void Widget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.drawPixmap(QRect(QPoint(), stage_size), *stage);
-    painter.scale(0.5, 0.5);
-    painter.translate(stage_size.width()/2, stage_size.height()/2);
+
+    set(painter);
+
     painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
     painter.setBrush(QColor("green"));
 
-    for(int i=0; i<int(id); ++i) {
+    for(int i=0; i<int(core->getInfo().playerCount); ++i) {
         if(!current_point[i].isNull()) painter.drawEllipse(current_point[i], 5, 5);
     }
 
@@ -118,8 +118,7 @@ void Widget::turn_single(int id)
     painter.begin(stage);
     painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
 
-    painter.scale(0.5, 0.5);
-    painter.translate(stage_size.width()/2, stage_size.height()/2);
+    set(painter);
     if(!last_point[(id)].isNull()) {
         painter.drawLine(last_point[id], current_point[id]);
     }
@@ -134,7 +133,7 @@ void Widget::turn()
 {
     //qDebug("come turn");
     core->multiCalculate();
-    for(int i=0; i<int(id); ++i) {
+    for(int i=0; i<int(core->getInfo().playerCount); ++i) {
         //qDebug("start [%d]", i);
         turn_single(i);
         //qDebug("end [%d]", i);

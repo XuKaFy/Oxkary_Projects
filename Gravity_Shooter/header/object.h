@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
-
+#include <QDebug>
 #include <algorithm>
 #include <iostream>
 
@@ -29,6 +29,7 @@ struct Planet : public Object
         : Object(x, y, radius, movable), density(density), vx(vx), vy(vy) { }
 
     real getMass() const {
+//        qDebug("r:%lf,den:%lf",radius,density);
         return SQR(radius) * density;
     }
 
@@ -38,15 +39,16 @@ struct Planet : public Object
 
 struct Bomb : public Planet
 {
-    explicit Bomb(real x = 0, real y = 0, real radius = 1, bool movable = true, real density = 1, real vx = 0, real vy = 0, int id = 0)
+    explicit Bomb(real x = 0, real y = 0, real radius = 1, bool movable = true, real density = 1, real vx = 0, real vy = 0, int id = -1 ,bool isCrashed = true)
 
-        : Planet(x, y, radius, movable, density, vx, vy), isCrashed(false), id(id) { }
+        : Planet(x, y, radius, movable, density, vx, vy), isCrashed(isCrashed), id(id) { }
 
     void getNext(real ax, real ay) {
         x += vx;
         y += vy;
         vx += ax;
         vy += ay;
+        isCrashed = false;
     }
 
     bool isCrashed;
@@ -57,6 +59,10 @@ struct Bomb : public Planet
     void crash() {
         isCrashed=true;
         flyFrames=0;
+        x=double(inf);
+        y=double(inf);
+        vx=0;
+        vy=0;
     }
 
 };
@@ -108,6 +114,9 @@ struct Info {
     real shipRadius;
     real speedAtBeginning;
     real bombDensity;
+
+    bool allowMoreShoots;//是否允许多人同时射击
+    real loadFrames;//炮弹重载所需帧数
 };
 
 #define Vector std::vector
@@ -132,6 +141,10 @@ public:
 
     static double distance(double x1, double y1, double x2, double y2) {
         return sqrt(SQR(x1-x2)+SQR(y1-y2));
+    }
+
+    static bool betwenn(double leftRange,double rightRange,double x) {
+        return leftRange<=x&&x<=rightRange;
     }
 
     GravityShooterCore(const Info &info = Info())
@@ -187,26 +200,26 @@ public:
         }
 
         bombs.resize(info.playerCount);
-        for(size_t i=0; i<info.playerCount; ++i) {//开局炮弹藏在天体后面
-            bombs[i].x = planets[i].x;
-            bombs[i].y = planets[i].y;
+        for(size_t i=0; i<info.playerCount; ++i) {//开局炮弹放在无穷远处
+            bombs[i].x = double(inf);
+            bombs[i].y = double(inf);
         }
     }
 
     int calculate(size_t id)
     {
         Bomb &bomb=this->bombs[id];
-        if (bomb.isCrashed || bomb.id) return -2;
+        if (/*bomb.isCrashed ||*/ bomb.id==-1) return -2;
         size_t planetsCnt = planets.size();
         double ax = 0, ay = 0;
-        //std::cout << "planetsCnt:" << planetsCnt << std::endl;
         for (size_t i=0; i<planetsCnt; ++i) {
             Planet now = planets[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
-            ax += (now.getMass() / (SQR(s) / bomb.getMass())) * ((now.x-bomb.x)/s);
-            ay += (now.getMass() / (SQR(s) / bomb.getMass())) * ((now.y-bomb.y)/s);
-            //std::printf("bomb.getMass():%d",bomb.getMass());
+            ax += (now.getMass() / (SQR(s) * bomb.getMass())) * ((now.x-bomb.x)/s);
+            ay += (now.getMass() / (SQR(s) * bomb.getMass())) * ((now.y-bomb.y)/s);
+
         }
+
         if (bomb.x < -info.width*info.range || bomb.y<-info.height*info.range || bomb.x>info.width+info.width*info.range || bomb.y>info.height+info.height*info.range) {
             bomb.crash();
             //puts("-1");
@@ -215,7 +228,6 @@ public:
         for (size_t i=0;i<planetsCnt;i++) {
             Planet now = planets[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
-//          std::printf("%lf %lf %lf %lf %lf\n",bomb.x,now.x,bomb.y,now.y,now.r);
             if (std::fabs(s) < now.radius) {
                 bomb.crash();
 
@@ -249,18 +261,12 @@ public:
 
     int shoot(size_t id, double power, double deg)
     {
-        //printf("fucking\n");
-        std::cout.flush();
         Bomb &bomb=this->bombs[id];
-        //printf("getting end\n");
-        std::cout.flush();
         double Sin = std::sin(deg), Cos = std::cos(deg);
         Ship now = ships[id];
         if (now.isFailed)
             return -1;
-        bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, info.bombDensity, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning);
-        //printf("bomb updated");
-        std::cout.flush();
+        bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, info.bombDensity, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning, false);
         return 0;
     }
 
