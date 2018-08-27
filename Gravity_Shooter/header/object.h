@@ -47,7 +47,6 @@ struct Bomb : public Planet
 
     bool isCrashed;
 
-
     int flyFrames;
     int id;
     void crash() {
@@ -95,10 +94,14 @@ struct Info {
     real maxR;
     real minBetweenPercent;
     real eps;
+
     real speed;
     real range;
     real shipRadius;
     real speedAtBeginning;
+    real maxPowPerSec;
+    real range;
+    real shipRadius;
 };
 
 #define Vector std::vector
@@ -159,6 +162,7 @@ public:
                 access = true;
                 x = rand01() * info.width, y = rand01() * info.height;
                 nowMaxR = (double)inf;
+
                 for (int j=0; j<num; ++j) {
                     nowMaxR = std::min(nowMaxR, distance(ship[j].x, ship[j].y, x, y));
                 }
@@ -186,6 +190,7 @@ public:
         }
         if (bomb.x < -info.width*info.range || bomb.y<-info.height*info.range || bomb.x>info.width+info.width*info.range || bomb.y>info.height+info.height*info.range) {
             bomb.crash();
+
             //puts("-1");
             return -1;
         }
@@ -195,6 +200,7 @@ public:
 //          std::printf("%lf %lf %lf %lf %lf\n",bomb.x,now.x,bomb.y,now.y,now.r);
             if (std::fabs(s) < now.radius) {
                 bomb.crash();
+
                 //puts("-1");
                 return -1;
             }
@@ -210,6 +216,7 @@ public:
             }
         }
         bomb.getNext(ax*info.speed, ay*info.speed);
+
         return 0;
     }
 
@@ -220,6 +227,7 @@ public:
         if (now.isFailed)
             return -1;
         bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, 0, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning);
+
         return 0;
     }
 
