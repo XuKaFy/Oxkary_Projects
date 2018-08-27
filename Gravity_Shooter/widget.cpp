@@ -7,6 +7,8 @@ Widget::Widget(QWidget *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(turn()));
 
     core = new GravityShooterCore();
+    stage = nullptr;
+
 }
 
 Widget::~Widget()
@@ -14,6 +16,7 @@ Widget::~Widget()
     planet.clear();
     ship.clear();
 
+    timer->stop();
     delete timer;
     delete stage;
     delete core;
@@ -21,11 +24,20 @@ Widget::~Widget()
 
 void Widget::start(const Info &info)
 {
+    //qDebug("starting");
+
     timer->stop();
 
     core->init(info);
     id = info.playerCount;
+
+    //qDebug("resize %d", int(id));
+    last_point.resize(int(id));
+    current_point.resize(int(id));
+
     current_id = id-1;
+    //qDebug("current id %u", current_id);
+
     stage_size.setHeight(info.height);
     stage_size.setWidth(info.width);
     delete stage;
@@ -33,6 +45,9 @@ void Widget::start(const Info &info)
     stage->fill();
     repaint();
     resize(stage_size);
+
+    //qDebug("end start");
+
     prepare();
 }
 
@@ -64,13 +79,18 @@ void Widget::fire(double deg, double power)
 {
     (++current_id) %= id;
 
-    last_point.setX(0);
-    last_point.setY(0);
-    current_point.setX(0);
-    current_point.setY(0);
+    //qDebug("init");
+    for(int i=0; i<int(id); ++i) {
+        last_point[i].setX(0);
+        last_point[i].setY(0);
+        current_point[i].setX(0);
+        current_point[i].setY(0);
+    }
+
 
     //qDebug("id is %d %f %f", current_id, deg, power);
     core->shoot(current_id, power, deg);
+    //qDebug("shoot_ed");
     timer->start(10);
 }
 
@@ -78,19 +98,21 @@ void Widget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.drawPixmap(QRect(QPoint(), stage_size), *stage);
-
     painter.scale(0.5, 0.5);
     painter.translate(stage_size.width()/2, stage_size.height()/2);
     painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
     painter.setBrush(QColor("green"));
 
-    if(!current_point.isNull()) painter.drawEllipse(current_point, 5, 5);
+    for(int i=0; i<int(id); ++i) {
+        if(!current_point[i].isNull()) painter.drawEllipse(current_point[i], 5, 5);
+    }
+
 }
 
-void Widget::turn()
+void Widget::turn_single(int id)
 {
-    core->calculate();
-    current_point = QPointF(core->getBomb().x, core->getBomb().y);
+    if(core->getBombs()[size_t(id)].isCrashed) return ;
+    current_point[id] = QPointF(core->getBombs()[size_t(id)].x, core->getBombs()[size_t(id)].y);
 
     QPainter painter;
     painter.begin(stage);
@@ -98,14 +120,24 @@ void Widget::turn()
 
     painter.scale(0.5, 0.5);
     painter.translate(stage_size.width()/2, stage_size.height()/2);
-
-    if(!last_point.isNull()) {
-        painter.drawLine(last_point, current_point);
+    if(!last_point[(id)].isNull()) {
+        painter.drawLine(last_point[id], current_point[id]);
     }
-    last_point = current_point;
+    last_point[id] = current_point[id];
 
-    repaint();
-    if(core->getBomb().isCrashed) {
+    /*if(core->getBomb(id).isCrashed) {
         timer->stop();
+    }*/
+}
+
+void Widget::turn()
+{
+    //qDebug("come turn");
+    core->multiCalculate();
+    for(int i=0; i<int(id); ++i) {
+        //qDebug("start [%d]", i);
+        turn_single(i);
+        //qDebug("end [%d]", i);
     }
+    repaint();
 }

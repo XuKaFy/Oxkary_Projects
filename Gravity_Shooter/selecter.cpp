@@ -21,17 +21,22 @@ void Selecter::onAccepted()
     Info info = Info();
     info.width = ui->widthSpinBox->value();
     info.height = ui->heightSpinBox->value();
-    info.minPlanetCount = ui->minCntSpinBox->value();
-    info.maxPlanetCount = ui->maxCntSpinBox->value();
-    info.playerCount = ui->playerSpinBox->value();
+    info.minPlanetCount = std::size_t(ui->minCntSpinBox->value());
+    info.maxPlanetCount = std::size_t(ui->maxCntSpinBox->value());
+    info.playerCount = std::size_t(ui->playerSpinBox->value());
+
     info.minDistance = ui->minDstSpinBox->value();
 
     info.minR = ui->minRadiusSpinBox->value();
     info.maxR = ui->maxRadiusSpinBox->value();
     info.minBetweenPercent = ui->minBetweenSpinBox->value();
     info.eps = ui->epsSpinBox->value();
-    info.maxPowPerSec = ui->maxPowPerSecSpinBox->value();
+    info.speed = ui->speedSpinBox->value();
     info.range = ui->rangeSpinBox->value();
     info.shipRadius = ui->shipRadiusSpinBox->value();
+    info.speedAtBeginning = ui->speedAtBeginningSpinBox->value();
+    info.bombDensity = ui->bombDensitySpinBox->value();
+
+
     set(info);
 }

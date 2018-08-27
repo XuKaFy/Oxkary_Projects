@@ -51,26 +51,14 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Width</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QSpinBox" name="widthSpinBox">
-       <property name="maximum">
-        <number>8191</number>
-       </property>
+     <item row="13" column="1">
+      <widget class="QDoubleSpinBox" name="speedAtBeginningSpinBox">
        <property name="value">
-        <number>600</number>
-       </property>
-       <property name="displayIntegerBase">
-        <number>10</number>
+        <double>1.100000000000000</double>
        </property>
       </widget>
      </item>
+
      <item row="5" column="1">
       <widget class="QSpinBox" name="heightSpinBox">
        <property name="maximum">
@@ -80,14 +68,49 @@
         <number>100</number>
        </property>
        <property name="value">
-        <number>600</number>
+        <number>700</number>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Min Distance</string>
+        <string>Width</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="0">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>Start Speed</string>
+
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="widthSpinBox">
+       <property name="maximum">
+        <number>8191</number>
+       </property>
+       <property name="value">
+        <number>1000</number>
+       </property>
+       <property name="displayIntegerBase">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="0">
+      <widget class="QLabel" name="label_15">
+       <property name="text">
+        <string>BombDensity</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QDoubleSpinBox" name="bombDensitySpinBox">
+       <property name="value">
+        <double>0.220000000000000</double>
        </property>
       </widget>
      </item>
@@ -105,37 +128,17 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Min Planet Count</string>
+       </property>
+      </widget>
+     </item>
      <item row="7" column="0">
       <widget class="QLabel" name="label_8">
        <property name="text">
         <string>Max Radius</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QDoubleSpinBox" name="maxRadiusSpinBox">
-       <property name="maximum">
-        <double>8192.000000000000000</double>
-       </property>
-       <property name="value">
-        <double>30.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QDoubleSpinBox" name="minRadiusSpinBox">
-       <property name="maximum">
-        <double>8192.000000000000000</double>
-       </property>
-       <property name="value">
-        <double>2.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>Min Between Percent</string>
        </property>
       </widget>
      </item>
@@ -162,6 +165,47 @@
        </property>
       </widget>
      </item>
+     <item row="6" column="1">
+      <widget class="QDoubleSpinBox" name="minRadiusSpinBox">
+       <property name="maximum">
+        <double>8192.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>4.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QDoubleSpinBox" name="maxRadiusSpinBox">
+       <property name="maximum">
+        <double>8192.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>10.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>Min Between Percent</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>EPS</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="speed">
+       <property name="text">
+        <string>Speed</string>
+       </property>
+      </widget>
+     </item>
      <item row="11" column="1">
       <widget class="QDoubleSpinBox" name="shipRadiusSpinBox">
        <property name="maximum">
@@ -173,7 +217,7 @@
       </widget>
      </item>
      <item row="10" column="1">
-      <widget class="QDoubleSpinBox" name="maxPowPerSecSpinBox">
+      <widget class="QDoubleSpinBox" name="speedSpinBox">
        <property name="maximum">
         <double>8192.000000000000000</double>
        </property>
@@ -189,27 +233,10 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_11">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Max Power/Frame</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label_10">
-       <property name="text">
-        <string>EPS</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="minCntSpinBox">
-       <property name="maximum">
-        <number>255</number>
-       </property>
-       <property name="value">
-        <number>5</number>
+        <string>Min Planet Count</string>
        </property>
       </widget>
      </item>
@@ -219,14 +246,7 @@
         <number>255</number>
        </property>
        <property name="value">
-        <number>15</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Min Planet Count</string>
+        <number>8</number>
        </property>
       </widget>
      </item>
@@ -237,17 +257,14 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Planet Count</string>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="minCntSpinBox">
+       <property name="maximum">
+        <number>255</number>
        </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Max Planet Count</string>
+       <property name="value">
+        <number>5</number>
+
        </property>
       </widget>
      </item>
@@ -260,7 +277,14 @@
         <double>10.000000000000000</double>
        </property>
        <property name="value">
-        <double>50.000000000000000</double>
+        <double>400.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Player Count</string>
        </property>
       </widget>
      </item>
@@ -268,6 +292,13 @@
       <widget class="QLabel" name="label_13">
        <property name="text">
         <string>Range</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Max Planet Count</string>
        </property>
       </widget>
      </item>
