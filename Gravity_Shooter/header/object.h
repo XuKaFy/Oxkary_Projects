@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <algorithm>
+#include <iostream>
 
 typedef double real;
 
@@ -35,7 +36,7 @@ struct Planet : public Object
 
 struct Bomb : public Planet
 {
-    Bomb(real x = 0, real y = 0, real radius = 1, bool movable = true, real density = 1, real vx = 0, real vy = 0, int id = 0)
+    explicit Bomb(real x = 0, real y = 0, real radius = 1, bool movable = true, real density = 1, real vx = 0, real vy = 0, int id = 0)
         : Planet(x, y, radius, movable, density, vx, vy), isCrashed(false), id(id) { }
 
     void getNext(real ax, real ay) {
@@ -81,12 +82,13 @@ struct Info {
         speed = 1;
         range = 0.5;
         shipRadius = 10;
-        speedAtBeginning=2;
+        speedAtBeginning = 2;
+        bombDensity = 0.2;
     }
 
-    int minPlanetCount;
-    int maxPlanetCount;
-    int playerCount;
+    size_t minPlanetCount;
+    size_t maxPlanetCount;
+    size_t playerCount;
     real minDistance;
     int width;
     int height;
@@ -99,19 +101,25 @@ struct Info {
     real range;
     real shipRadius;
     real speedAtBeginning;
+    real bombDensity;
 };
 
 #define Vector std::vector
+typedef std::size_t size_t;
 
 class GravityShooterCore
 {
 public:
-    static double rand01() {
+    static double randDouble01() {
         return rand() / double(RAND_MAX);
     }
 
-    static double random(double Min, double Max) {
-        return rand01()*(Max-Min)+Min;
+    static double randomDouble(double Min, double Max) {
+        return randDouble01()*(Max-Min)+Min;
+    }
+
+    static int randomInt(int Min,int Max) {
+        return (rand() % (Max-Min+1))+ Min;
     }
 
     static double distance(double x1, double y1, double x2, double y2) {
@@ -125,72 +133,79 @@ public:
         return info;
     }
 
-    Bomb getBomb() const {
-        return bomb;
-    }
-
     void init(const Info &info_new) {
         info = info_new;
-        planet.clear();
-        ship.clear();
+        planets.clear();
+        ships.clear();
+        bombs.clear();
 
         srand(time(0));
-        for (int i=0; i<info.playerCount; ++i) {
+        for (size_t i=0; i<info.playerCount; ++i) {
             bool access=true;
             double x, y;
             do {
-                x = rand01() * info.width, y = rand01() * info.height;
+                x = randDouble01() * info.width;
+                y = randDouble01() * info.height;
                 access=true;
-                for (int j=0; j<i; ++j) {
-                    if (distance(ship[j].x, ship[j].y, x, y) < info.minDistance)
+                for (size_t j=0; j<i; ++j) {
+                    if (distance(ships[j].x, ships[j].y, x, y) < info.minDistance)
                         access = false;
                 }
             } while(!access);
-            ship.push_back(Ship(x, y, info.shipRadius));
+            ships.push_back(Ship(x, y, info.shipRadius));
         }
 
-        int planetCnt = random(info.minPlanetCount, info.maxPlanetCount);
+        size_t planetCnt = size_t(randomInt(int(info.minPlanetCount), int(info.maxPlanetCount)));
 
-        for (int i=0;i<planetCnt;i++) {
+        for (size_t i=0;i<planetCnt;i++) {
             double x, y, nowMaxR;
             bool access=true;
-            int num = ship.size();
+            size_t num = ships.size();
             do {
                 access = true;
-                x = rand01() * info.width, y = rand01() * info.height;
-                nowMaxR = (double)inf;
-                for (int j=0; j<num; ++j) {
-                    nowMaxR = std::min(nowMaxR, distance(ship[j].x, ship[j].y, x, y));
+                x = randDouble01() * info.width;
+                y = randDouble01() * info.height;
+                nowMaxR = double(inf);
+                for (size_t j=0; j<num; ++j) {
+                    nowMaxR = std::min(nowMaxR, distance(ships[j].x, ships[j].y, x, y)-ships[j].radius);
                 }
-                for (int j=0; j<i; ++j) {
-                    nowMaxR = std::min(nowMaxR, distance(planet[j].x, planet[j].y, x, y) - planet[j].radius);
+                for (size_t j=0; j<i; ++j) {
+                    nowMaxR = std::min(nowMaxR, distance(planets[j].x, planets[j].y, x, y) - planets[j].radius);
                 }
-                if (nowMaxR * info.minBetweenPercent<info.minR) access=false;
+                if (nowMaxR /  (info.minBetweenPercent + 1)<info.minR) access=false;
             } while(!access);
-            double r = random(info.minR, std::min(info.maxR, nowMaxR) * info.minBetweenPercent);
-            planet.push_back(Planet(x, y, r));
+            double r = randomDouble(info.minR, std::min(info.maxR, nowMaxR /  (info.minBetweenPercent + 1)));
+            planets.push_back(Planet(x, y, r));
+        }
+
+        bombs.resize(info.playerCount);
+        for(size_t i=0; i<info.playerCount; ++i) {//开局炮弹藏在天体后面
+            bombs[i].x = planets[i].x;
+            bombs[i].y = planets[i].y;
         }
     }
 
-    int calculate()
+    int calculate(size_t id)
     {
+        Bomb &bomb=this->bombs[id];
         if (bomb.isCrashed || bomb.id) return -2;
-        int planetsCnt = planet.size();
+        size_t planetsCnt = planets.size();
         double ax = 0, ay = 0;
         //std::cout << "planetsCnt:" << planetsCnt << std::endl;
-        for (int i=0; i<planetsCnt; ++i) {
-            Planet now = planet[i];
+        for (size_t i=0; i<planetsCnt; ++i) {
+            Planet now = planets[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
-            ax += (now.getMass()/(SQR(s))) * ((now.x-bomb.x)/s);
-            ay += (now.getMass()/(SQR(s))) * ((now.y-bomb.y)/s);
+            ax += (now.getMass() / (SQR(s) / bomb.getMass())) * ((now.x-bomb.x)/s);
+            ay += (now.getMass() / (SQR(s) / bomb.getMass())) * ((now.y-bomb.y)/s);
+            //std::printf("bomb.getMass():%d",bomb.getMass());
         }
         if (bomb.x < -info.width*info.range || bomb.y<-info.height*info.range || bomb.x>info.width+info.width*info.range || bomb.y>info.height+info.height*info.range) {
             bomb.crash();
             //puts("-1");
             return -1;
         }
-        for (int i=0;i<planetsCnt;i++) {
-            Planet now = planet[i];
+        for (size_t i=0;i<planetsCnt;i++) {
+            Planet now = planets[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
 //          std::printf("%lf %lf %lf %lf %lf\n",bomb.x,now.x,bomb.y,now.y,now.r);
             if (std::fabs(s) < now.radius) {
@@ -199,43 +214,67 @@ public:
                 return -1;
             }
         }
-        int shipsCnt = ship.size();
-        for (int i=0; i<shipsCnt; ++i) {
-            Ship &now = ship[i];
+        size_t shipsCnt = ships.size();
+        for (size_t i=0; i<shipsCnt; ++i) {
+            Ship &now = ships[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
             if (std::fabs(s)<now.radius && !now.isFailed) {
                 now.isFailed = true;
                 bomb.crash();
-                return i;
+                return int(i);
             }
         }
         bomb.getNext(ax*info.speed, ay*info.speed);
         return 0;
     }
 
-    int shoot(int id, double power, double deg)
+    Vector <int> multiCalculate()
     {
+        Vector <int> result;
+        size_t bombsNum=bombs.size();
+        for (size_t i=0;i<bombsNum;i++) {
+           result.push_back(calculate(i));
+        }
+        return result;
+    }
+
+    int shoot(size_t id, double power, double deg)
+    {
+        //printf("fucking\n");
+        std::cout.flush();
+        Bomb &bomb=this->bombs[id];
+        //printf("getting end\n");
+        std::cout.flush();
         double Sin = std::sin(deg), Cos = std::cos(deg);
-        Ship now = ship[id];
+        Ship now = ships[id];
         if (now.isFailed)
             return -1;
-        bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, 0, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning);
+        bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, info.bombDensity, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning);
+        //printf("bomb updated");
+        std::cout.flush();
         return 0;
     }
 
-    const Vector<Planet> &getPlanets() const {
-        return planet;
+    const Vector<Planet> &getPlanets() const
+    {
+        return planets;
     }
 
-    const Vector<Ship> &getShips() const {
-        return ship;
+    const Vector<Ship> &getShips() const
+    {
+        return ships;
+    }
+
+    const Vector<Bomb> &getBombs() const
+    {
+        return bombs;
     }
 
 private:
     Info info;
-    Vector<Planet> planet;
-    Vector<Ship> ship;
-    Bomb bomb;
+    Vector<Planet> planets;
+    Vector<Ship> ships;
+    Vector<Bomb> bombs;
 };
 
 #endif // OBJECT_H

@@ -11,16 +11,13 @@
 #include "header/object.h"
 
 class GravityShooterCore;
-class Planet;
-class Ship;
-class Bomb;
 
 class Widget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Widget(QWidget *parent = 0);
+    explicit Widget(QWidget *parent = nullptr);
     ~Widget();
 
     void start(const Info &info);
@@ -31,15 +28,16 @@ protected:
 
 private:
     void prepare();
+    void turn_single(int id);
 
     QVector<Planet> planet;
     QVector<Ship> ship;
     QPixmap *stage;
     QTimer *timer;
-    QPointF last_point, current_point;
+    QVector<QPointF> last_point, current_point;
     GravityShooterCore *core;
     QSize stage_size;
-    int id, current_id;
+    size_t id, current_id;
 
 private slots:
     void turn();
