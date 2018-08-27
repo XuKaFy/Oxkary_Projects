@@ -1,5 +1,7 @@
 #include "widget.h"
 
+#define maxTryCnt 25
+
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
@@ -24,8 +26,16 @@ void Widget::start(const Info &info)
 
     timer->stop();
 
-    core->init(info);
+    size_t tryCnt = 0;
+    while(core->init(info)!=0) {
+        if (++tryCnt >= maxTryCnt) {
+            qDebug("生成失败，条件过于苛刻！请重试或减少玩家/行星数量……或者重试。");
+            return ;
+        }
 
+        qDebug("正在尝试生成……已尝试%d次。\n",tryCnt);
+    }
+    qDebug("生成成功！\n");
     current_id = info.playerCount-1;
     //qDebug("current id %u", current_id);
 
@@ -64,15 +74,21 @@ void Widget::prepare()
     painter.setPen("red");
     painter.setBrush(QColor("red"));
     for(auto i=core->getShips().begin(); i!=core->getShips().end(); ++i) {
-        painter.drawEllipse(QPointF(i->x, i->y), 10, 10);
+        painter.drawEllipse(QPointF(i->x, i->y), 5, 5);
     }
 }
 
 void Widget::fire(double deg, double power)
 {
+    size_t loopCount = 0;
+    size_t new_id = current_id;
     do {
-        (++current_id) %= core->getInfo().playerCount;
-    } while(core->getShips()[current_id].isFailed);
+        (++new_id) %= core->getInfo().playerCount;
+        if (++loopCount > core->getInfo().playerCount) {
+            return ;
+        }
+    } while(!core->isAvailable(new_id));
+    current_id = new_id;
 
     //qDebug("init");
     last_point.clear();
@@ -100,7 +116,7 @@ void Widget::paintEvent(QPaintEvent *)
 
     set(painter);
 
-    painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
+    painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 1));
     painter.setBrush(QColor("green"));
 
     for(int i=0; i<int(core->getInfo().playerCount); ++i) {
@@ -116,7 +132,7 @@ void Widget::turn_single(int id)
 
     QPainter painter;
     painter.begin(stage);
-    painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 2));
+    painter.setPen(QPen(/*core->getBomb().color*/QColor("green"), 1));
 
     set(painter);
     if(!last_point[(id)].isNull()) {

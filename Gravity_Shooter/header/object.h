@@ -13,6 +13,7 @@ typedef double real;
 
 #define SQR(n) ((n)*(n))
 #define inf 999999999
+#define maxLoopCnt 1000000
 
 struct Object
 {
@@ -39,7 +40,8 @@ struct Planet : public Object
 
 struct Bomb : public Planet
 {
-    explicit Bomb(real x = 0, real y = 0, real radius = 1, bool movable = true, real density = 1, real vx = 0, real vy = 0, int id = -1 ,bool isCrashed = true)
+    explicit Bomb(real x = 0, real y = 0, real radius = 1,
+                  bool movable = true, real density = 1, real vx = 0, real vy = 0, size_t id = -1 ,bool isCrashed = true)
 
         : Planet(x, y, radius, movable, density, vx, vy), isCrashed(isCrashed), id(id) { }
 
@@ -81,11 +83,11 @@ struct Info {
         maxPlanetCount = 10;
         playerCount = 2;
         minDistance = 10.0;
-        width = 600;
-        height = 600;
+        width = 1000;
+        height = 700;
 
-        minR = 2.0;
-        maxR = 30.0;
+        minR = 8.0;
+        maxR = 10.0;
         minBetweenPercent = 0.5;
         eps = 1;
 
@@ -93,7 +95,9 @@ struct Info {
         range = 0.5;
         shipRadius = 10;
         speedAtBeginning = 2;
-        bombDensity = 0.2;
+        bombDensity = 0.01;
+
+        allowMoreShoots = true;
     }
 
     size_t minPlanetCount;
@@ -116,7 +120,7 @@ struct Info {
     real bombDensity;
 
     bool allowMoreShoots;//是否允许多人同时射击
-    real loadFrames;//炮弹重载所需帧数
+    real loadFrames;//炮弹重载所需帧数(unused)
 };
 
 #define Vector std::vector
@@ -147,19 +151,34 @@ public:
         return leftRange<=x&&x<=rightRange;
     }
 
+    bool isAvailable(size_t id) {
+        if (id >= ships.size() || id >= bombs.size())
+            return false;
+        if (flyingBombCounts > 0 && info.allowMoreShoots == false)
+            return false;
+        if (!bombs[id].isCrashed)
+            return false;
+        return true;
+    }
+
+    void crashBomb(Bomb &bomb) {
+        bomb.crash();
+        --flyingBombCounts;
+    }
     GravityShooterCore(const Info &info = Info())
-        : info(info) { }
+        : info(info),flyingBombCounts(0) { }
 
     Info getInfo() const {
         return info;
     }
 
-    void init(const Info &info_new) {
+    int init(const Info &info_new) {
+        int loopCnt = 0;
         info = info_new;
         planets.clear();
         ships.clear();
         bombs.clear();
-
+        flyingBombCounts = 0;
         srand(time(0));
         for (size_t i=0; i<info.playerCount; ++i) {
             bool access=true;
@@ -172,9 +191,13 @@ public:
                     if (distance(ships[j].x, ships[j].y, x, y) < info.minDistance)
                         access = false;
                 }
+                if (++loopCnt >= maxLoopCnt)
+                    return -1;
             } while(!access);
             ships.push_back(Ship(x, y, info.shipRadius));
         }
+
+        loopCnt = 0;
 
         size_t planetCnt = size_t(randomInt(int(info.minPlanetCount), int(info.maxPlanetCount)));
 
@@ -194,6 +217,8 @@ public:
                     nowMaxR = std::min(nowMaxR, distance(planets[j].x, planets[j].y, x, y) - planets[j].radius);
                 }
                 if (nowMaxR /  (info.minBetweenPercent + 1)<info.minR) access=false;
+                if (++loopCnt >= maxLoopCnt)
+                    return -1;
             } while(!access);
             double r = randomDouble(info.minR, std::min(info.maxR, nowMaxR /  (info.minBetweenPercent + 1)));
             planets.push_back(Planet(x, y, r));
@@ -204,24 +229,25 @@ public:
             bombs[i].x = double(inf);
             bombs[i].y = double(inf);
         }
+        return 0;
     }
 
     int calculate(size_t id)
     {
         Bomb &bomb=this->bombs[id];
-        if (/*bomb.isCrashed ||*/ bomb.id==-1) return -2;
+        if (bomb.isCrashed || bomb.id==-1) return -2;
         size_t planetsCnt = planets.size();
         double ax = 0, ay = 0;
         for (size_t i=0; i<planetsCnt; ++i) {
             Planet now = planets[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
-            ax += (now.getMass() / (SQR(s) * bomb.getMass())) * ((now.x-bomb.x)/s);
-            ay += (now.getMass() / (SQR(s) * bomb.getMass())) * ((now.y-bomb.y)/s);
+            ax += (now.getMass() / (SQR(s) * bomb.getMass())) * ((now.x-bomb.x)/s) * info.speed;
+            ay += (now.getMass() / (SQR(s) * bomb.getMass())) * ((now.y-bomb.y)/s) * info.speed;
 
         }
 
         if (bomb.x < -info.width*info.range || bomb.y<-info.height*info.range || bomb.x>info.width+info.width*info.range || bomb.y>info.height+info.height*info.range) {
-            bomb.crash();
+            crashBomb(bomb);
             //puts("-1");
             return -1;
         }
@@ -229,7 +255,7 @@ public:
             Planet now = planets[i];
             double s = distance(bomb.x, bomb.y, now.x, now.y);
             if (std::fabs(s) < now.radius) {
-                bomb.crash();
+                crashBomb(bomb);
 
                 //puts("-1");
                 return -1;
@@ -241,7 +267,7 @@ public:
             double s = distance(bomb.x, bomb.y, now.x, now.y);
             if (std::fabs(s)<now.radius && !now.isFailed) {
                 now.isFailed = true;
-                bomb.crash();
+                crashBomb(bomb);
                 return int(i);
             }
         }
@@ -261,12 +287,17 @@ public:
 
     int shoot(size_t id, double power, double deg)
     {
+        if (flyingBombCounts > 0 && info.allowMoreShoots == false)
+            return -1;
+        ++flyingBombCounts;
         Bomb &bomb=this->bombs[id];
         double Sin = std::sin(deg), Cos = std::cos(deg);
         Ship now = ships[id];
+        if (!bomb.isCrashed)
+            return -2;
         if (now.isFailed)
-            return -1;
-        bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, info.bombDensity, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning, false);
+            return -3;
+        bomb = Bomb(now.x+((now.radius+info.eps)*Sin)+info.eps, now.y+((now.radius+info.eps)*Cos), info.shipRadius, true, info.bombDensity, info.speed*Sin*power*info.speedAtBeginning, info.speed*Cos*power*info.speedAtBeginning, id, false);
         return 0;
     }
 
@@ -290,6 +321,7 @@ private:
     Vector<Planet> planets;
     Vector<Ship> ships;
     Vector<Bomb> bombs;
+    int flyingBombCounts;
 };
 
 #endif // OBJECT_H
