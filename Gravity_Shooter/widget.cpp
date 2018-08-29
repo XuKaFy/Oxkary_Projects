@@ -1,6 +1,5 @@
 #include "widget.h"
-
-#define maxTryCnt 25
+#include "header/definition.h"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)

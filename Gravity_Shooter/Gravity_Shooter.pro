@@ -33,7 +33,11 @@ HEADERS += \
     mainwindow.h \
     widget.h \
     selecter.h \
-    header/object.h
+    header/object.h \
+    header/definition.h
 
 FORMS += \
     selecter.ui
+
+RESOURCES += \
+    res.qrc
