@@ -203,7 +203,7 @@ public:
                     return -1;
             } while(!access);
             real r = randomReal(info.minR, qMin(info.maxR, nowMaxR /  (info.minBetweenPercent + 1)));
-            planets.push_back(Planet(x, y, r));
+            planets.push_back(Planet(x, y, r, false, info.planetDensity, 0 ,0));
         }
 
         bombs.resize(info.playerCount);
