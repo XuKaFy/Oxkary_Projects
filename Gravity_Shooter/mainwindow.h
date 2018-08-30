@@ -6,6 +6,8 @@
 #include <QDoubleSpinBox>
 #include <QSlider>
 #include <QLabel>
+#include <QToolBar>
+
 #include "widget.h"
 #include "selecter.h"
 
